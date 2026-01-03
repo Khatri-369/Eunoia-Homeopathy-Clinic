@@ -132,7 +132,7 @@ const HomePage: React.FC = () => {
                 {/* Main Image */}
                 <div className="relative rounded-3xl sm:rounded-[3rem] overflow-hidden border-4 sm:border-[6px] border-white shadow-2xl">
                   <img
-                    src="https://picsum.photos/seed/drhetal/600/750"
+                    src="/Client face photo.jpg"
                     alt="Dr. Hetal Pandav"
                     className="w-full h-auto object-cover bg-gray-100"
                   />
@@ -141,12 +141,12 @@ const HomePage: React.FC = () => {
                   <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm p-4 sm:p-6 border-t border-gray-100">
                     <div className="flex justify-between text-center">
                       <div>
-                        <p className="text-xl sm:text-2xl font-bold text-gray-900">15+</p>
+                        <p className="text-xl sm:text-2xl font-bold text-gray-900">10+</p>
                         <p className="text-[9px] sm:text-[10px] text-gray-500 uppercase tracking-wider">Years</p>
                       </div>
                       <div className="w-px bg-gray-200"></div>
                       <div>
-                        <p className="text-xl sm:text-2xl font-bold text-gray-900">5k+</p>
+                        <p className="text-xl sm:text-2xl font-bold text-gray-900">1k+</p>
                         <p className="text-[9px] sm:text-[10px] text-gray-500 uppercase tracking-wider">Patients</p>
                       </div>
                       <div className="w-px bg-gray-200"></div>

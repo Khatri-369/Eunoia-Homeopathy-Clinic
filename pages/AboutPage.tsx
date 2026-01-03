@@ -1,7 +1,27 @@
-import React from 'react';
-import { Activity, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { Activity, ShieldCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const AboutPage: React.FC = () => {
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    const carouselImages = [
+        { src: '/Client Laptop photo.jpg', alt: 'Client Laptop Photo' },
+        { src: '/client diary photo.jpg', alt: 'Client Diary Photo' },
+        { src: '/Medicine photo.jpg', alt: 'Medicine Photo' },
+    ];
+
+    const handlePrevious = () => {
+        setCurrentImageIndex((prevIndex) =>
+            prevIndex === 0 ? carouselImages.length - 1 : prevIndex - 1
+        );
+    };
+
+    const handleNext = () => {
+        setCurrentImageIndex((prevIndex) =>
+            (prevIndex + 1) % carouselImages.length
+        );
+    };
+
     return (
         <main className="flex-grow">
 
@@ -10,15 +30,54 @@ const AboutPage: React.FC = () => {
             <section className="py-20 bg-white">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-                        {/* Image Side */}
+                        {/* Image Side - Carousel */}
                         <div className="w-full lg:w-1/2 relative">
-                            <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white">
-                                <img
-                                    src="https://picsum.photos/seed/drhetalpandav/600/750"
-                                    alt="Dr. Hetal Pandav"
-                                    className="w-full h-auto object-cover"
-                                />
+                            <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border-8 border-primary">
+                                {/* Fixed size container */}
+                                <div className="relative w-full h-[500px] bg-gray-100">
+                                    {carouselImages.map((image, index) => (
+                                        <img
+                                            key={index}
+                                            src={image.src}
+                                            alt={image.alt}
+                                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent mix-blend-multiply"></div>
+
+                                {/* Navigation Buttons */}
+                                <button
+                                    onClick={handlePrevious}
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 z-20"
+                                    aria-label="Previous image"
+                                >
+                                    <ChevronLeft size={24} />
+                                </button>
+
+                                <button
+                                    onClick={handleNext}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 z-20"
+                                    aria-label="Next image"
+                                >
+                                    <ChevronRight size={24} />
+                                </button>
+
+                                {/* Carousel Indicators */}
+                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+                                    {carouselImages.map((_, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => setCurrentImageIndex(index)}
+                                            className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentImageIndex
+                                                ? 'bg-white w-8'
+                                                : 'bg-white/50 hover:bg-white/75'
+                                                }`}
+                                            aria-label={`Go to image ${index + 1}`}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                             {/* Decorative background blob */}
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-rose-100 rounded-full blur-3xl -z-10"></div>
