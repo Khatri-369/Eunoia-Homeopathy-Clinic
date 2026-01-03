@@ -467,23 +467,23 @@ export const CASE_STUDIES: CaseStudy[] = [
 export const TESTIMONIALS: Testimonial[] = [
   {
     id: 't1',
-    name: "Rajesh K.",
+    name: "Khatri Manisha",
     location: "Vadodara",
-    text: "I was suffering from chronic sinusitis for 15 years. Conventional medicine only gave temporary relief. Dr. Hetal's constitutional treatment completely cured me in 8 months.",
+    text: "I struggled with chronic sinusitis for over 15 years and tried almost everything. Antibiotics only gave temporary relief, but it always came back. Dr. Hetal’s treatment was different—she understood the root cause. Within 8 months, I felt completely cured. Truly grateful for this lasting relief.",
     condition: "Sinusitis"
   },
   {
     id: 't2',
-    name: "Priya S.",
+    name: "Suthar Dhruv",
     location: "Online Patient (Mumbai)",
-    text: "My daughter had recurring tonsillitis. Dr. Hetal's video consultation was very thorough. The sweet pills worked wonders and we avoided surgery.",
+    text: "We were really worried about my daughter's recurring tonsillitis and wanted to avoid surgery at all costs. Dr. Hetal’s video consultation was so detailed; she asked about things no other doctor did. The sweet pills worked wonders, and my daughter hasn't had an episode since. Highly recommended!",
     condition: "Pediatric Tonsillitis"
   },
   {
     id: 't3',
-    name: "Anita Desai",
+    name: "Nisha Pandav",
     location: "Vadodara",
-    text: "The best place for holistic healing. Dr. Pandav listens patiently and her diagnosis is spot on. My migraines have vanished.",
+    text: "Migraines had started affecting my work and daily life. I was skeptical about homeopathy at first, but Dr. Pandav changed my mind. She listens with such patience. Her diagnosis was spot on, and I haven't had a severe headache in months. It feels like a fresh start.",
     condition: "Migraine"
   }
 ];

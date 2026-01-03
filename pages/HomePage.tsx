@@ -366,16 +366,16 @@ const HomePage: React.FC = () => {
           <h2 className="text-3xl font-serif font-bold text-center text-gray-900 mb-16">Success Stories</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 relative mt-4">
-                <div className="absolute -top-6 left-8 w-12 h-12 bg-primary text-white flex items-center justify-center rounded-full text-2xl font-serif">"</div>
+              <div key={i} className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 relative mt-4 group hover:shadow-xl transition-shadow duration-300">
+                <div className="absolute -top-6 left-8 w-12 h-12 bg-white text-primary flex items-center justify-center rounded-full text-4xl font-serif shadow-md border border-gray-100">"</div>
                 <p className="text-gray-600 italic mb-6 pt-4 leading-relaxed">{t.text}</p>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 font-bold text-lg">
+                  <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-primary font-bold text-lg">
                     {t.name[0]}
                   </div>
                   <div>
                     <h4 className="font-bold text-gray-900">{t.name}</h4>
-                    <p className="text-xs text-primary font-bold uppercase">{t.condition}</p>
+                    <p className="text-xs text-gray-400">Patient</p>
                   </div>
                 </div>
               </div>
