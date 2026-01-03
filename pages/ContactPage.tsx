@@ -1,14 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle, Facebook, Instagram } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
+import emailjs from '@emailjs/browser';
 
 const ContactPage: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Initialize EmailJS with public key
+  useEffect(() => {
+    emailjs.init('PPSTl7vkuLzVRFaP4');
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setTimeout(() => setSubmitted(true), 1000);
+    setLoading(true);
+    setError(null);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    const templateParams = {
+      from_name: formData.get('from_name'),
+      reply_to: formData.get('reply_to'),
+      phone: formData.get('phone'),
+      subject: formData.get('subject'),
+      message: formData.get('message'),
+      timestamp: new Date().toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      })
+    };
+
+    try {
+      await emailjs.send(
+        'service_jnopdbi',      // Service ID
+        'template_lfarlqq',      // Template ID
+        templateParams,
+        'PPSTl7vkuLzVRFaP4'      // Public Key
+      );
+
+      setSubmitted(true);
+      form.reset();
+    } catch (err: any) {
+      console.error('EmailJS Error Details:', err);
+      const errorMessage = err?.text || err?.message || 'Unknown error';
+      setError(`Failed to send: ${errorMessage}. Please contact us directly at ${CONTACT_INFO.phone}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const contactItems = [
@@ -156,6 +199,7 @@ const ContactPage: React.FC = () => {
                       </label>
                       <input
                         type="text"
+                        name="from_name"
                         required
                         onFocus={() => setFocusedField('name')}
                         onBlur={() => setFocusedField(null)}
@@ -165,36 +209,55 @@ const ContactPage: React.FC = () => {
                     </div>
                     <div className="space-y-2 relative">
                       <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                        Email
+                        {focusedField === 'email' && <span className="text-rose-500 animate-pulse">*</span>}
+                      </label>
+                      <input
+                        type="email"
+                        name="reply_to"
+                        required
+                        onFocus={() => setFocusedField('email')}
+                        onBlur={() => setFocusedField(null)}
+                        className="w-full px-5 py-4 bg-gray-50 rounded-xl border-2 border-gray-200 focus:bg-white focus:border-rose-500 outline-none transition-all duration-300 hover:border-gray-300"
+                        placeholder="your.email@example.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2 relative">
+                      <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
                         Phone
                         {focusedField === 'phone' && <span className="text-rose-500 animate-pulse">*</span>}
                       </label>
                       <input
                         type="tel"
+                        name="phone"
                         required
                         onFocus={() => setFocusedField('phone')}
                         onBlur={() => setFocusedField(null)}
                         className="w-full px-5 py-4 bg-gray-50 rounded-xl border-2 border-gray-200 focus:bg-white focus:border-rose-500 outline-none transition-all duration-300 hover:border-gray-300"
-                        placeholder="Your Number"
+                        placeholder="+91 XXXXX XXXXX"
                       />
                     </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                      Subject
-                      {focusedField === 'subject' && <span className="text-rose-500 animate-pulse">*</span>}
-                    </label>
-                    <select
-                      onFocus={() => setFocusedField('subject')}
-                      onBlur={() => setFocusedField(null)}
-                      className="w-full px-5 py-4 bg-gray-50 rounded-xl border-2 border-gray-200 focus:bg-white focus:border-rose-500 outline-none transition-all duration-300 hover:border-gray-300 cursor-pointer"
-                    >
-                      <option>General Inquiry</option>
-                      <option>Appointment Booking</option>
-                      <option>Treatment Details</option>
-                      <option>Follow-up Consultation</option>
-                      <option>Other</option>
-                    </select>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                        Subject
+                        {focusedField === 'subject' && <span className="text-rose-500 animate-pulse">*</span>}
+                      </label>
+                      <select
+                        name="subject"
+                        onFocus={() => setFocusedField('subject')}
+                        onBlur={() => setFocusedField(null)}
+                        className="w-full px-5 py-4 bg-gray-50 rounded-xl border-2 border-gray-200 focus:bg-white focus:border-rose-500 outline-none transition-all duration-300 hover:border-gray-300 cursor-pointer"
+                      >
+                        <option>General Inquiry</option>
+                        <option>Appointment Booking</option>
+                        <option>Treatment Details</option>
+                        <option>Follow-up Consultation</option>
+                        <option>Other</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -203,6 +266,7 @@ const ContactPage: React.FC = () => {
                       {focusedField === 'message' && <span className="text-rose-500 animate-pulse">*</span>}
                     </label>
                     <textarea
+                      name="message"
                       required
                       rows={5}
                       onFocus={() => setFocusedField('message')}
@@ -212,12 +276,23 @@ const ContactPage: React.FC = () => {
                     ></textarea>
                   </div>
 
+                  {error && (
+                    <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 text-red-700 text-sm">
+                      {error}
+                    </div>
+                  )}
+
                   <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold py-5 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 flex justify-center items-center gap-3 transform hover:scale-[1.02] group"
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold py-5 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 flex justify-center items-center gap-3 transform hover:scale-[1.02] group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   >
-                    <span>Send Message</span>
-                    <Send size={20} className="group-hover:translate-x-1 transition-transform duration-300" />
+                    <span>{loading ? 'Sending...' : 'Send Message'}</span>
+                    {loading ? (
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <Send size={20} className="group-hover:translate-x-1 transition-transform duration-300" />
+                    )}
                   </button>
 
                   <p className="text-center text-sm text-gray-500 mt-4">
