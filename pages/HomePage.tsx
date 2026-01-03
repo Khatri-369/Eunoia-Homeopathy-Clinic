@@ -367,8 +367,12 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {TESTIMONIALS.map((t, i) => (
               <div key={i} className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 relative mt-4 group hover:shadow-xl transition-shadow duration-300">
-                <div className="absolute -top-6 left-8 w-12 h-12 bg-white text-primary flex items-center justify-center rounded-full text-4xl font-serif shadow-md border border-gray-100">"</div>
-                <p className="text-gray-600 italic mb-6 pt-4 leading-relaxed">{t.text}</p>
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={18} className="text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-gray-600 italic mb-6 leading-relaxed">{t.text}</p>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-primary font-bold text-lg">
                     {t.name[0]}
