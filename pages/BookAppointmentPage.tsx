@@ -1,14 +1,52 @@
 import React, { useState } from 'react';
-import { Video, MapPin, Calendar, Clock, CheckCircle, ArrowLeft, ArrowRight, User } from 'lucide-react';
+import { Video, MapPin, Calendar, Clock, CheckCircle, ArrowLeft, ArrowRight, User, Loader2 } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 import { CONTACT_INFO } from '../constants';
+
+// ⚠️ REPLACE THESE WITH YOUR ACTUAL EMAILJS CREDENTIALS
+// Get these from https://dashboard.emailjs.com/
+const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID'; // e.g., 'service_xyz'
+const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID'; // e.g., 'template_abc'
+const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; // e.g., 'user_123'
 
 const BookAppointmentPage: React.FC = () => {
   const [step, setStep] = useState(1);
   const [bookingType, setBookingType] = useState<'online' | 'offline' | null>(null);
   const [details, setDetails] = useState({ name: '', date: '', time: '', phone: '' });
+  const [isSending, setIsSending] = useState(false);
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    setIsSending(true);
     const typeLabel = bookingType === 'online' ? 'Video Consultation' : 'In-Clinic Visit';
+
+    // 1. Send Email via EmailJS
+    try {
+      if (EMAILJS_SERVICE_ID !== 'YOUR_SERVICE_ID') {
+        await emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_ID,
+          {
+            to_name: 'Dr. Hetal',
+            from_name: details.name,
+            phone: details.phone,
+            date: details.date,
+            time: details.time,
+            type: typeLabel,
+            message: `New Appointment Request: ${typeLabel} on ${details.date} at ${details.time}`,
+          },
+          EMAILJS_PUBLIC_KEY
+        );
+      } else {
+        console.warn('EmailJS credentials are not set. Skipping email send.');
+      }
+    } catch (error) {
+      console.error('Failed to send email:', error);
+      alert('Failed to send email notification. Proceeding to WhatsApp.');
+    } finally {
+      setIsSending(false);
+    }
+
+    // 2. Open WhatsApp (Existing Flow)
     const message = `Hello Dr. Hetal,
 
 I would like to book a *${typeLabel}*.
@@ -161,10 +199,17 @@ Please confirm the slot. Thank you.`;
 
               <button
                 onClick={handleConfirm}
-                disabled={!details.name || !details.phone}
+                disabled={!details.name || !details.phone || isSending}
                 className="w-full bg-primary hover:bg-rose-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Confirm Booking Request
+                {isSending ? (
+                  <>
+                    <Loader2 className="animate-spin" size={20} />
+                    Processing Request...
+                  </>
+                ) : (
+                  'Confirm Booking Request'
+                )}
               </button>
             </div>
           </div>
