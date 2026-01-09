@@ -1,18 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle, Facebook, Instagram } from 'lucide-react';
 import { CONTACT_INFO } from '../constants';
-import emailjs from '@emailjs/browser';
 
 const ContactPage: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Initialize EmailJS with public key
-  useEffect(() => {
-    emailjs.init('PPSTl7vkuLzVRFaP4');
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,33 +16,67 @@ const ContactPage: React.FC = () => {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-    const templateParams = {
-      from_name: formData.get('from_name'),
-      reply_to: formData.get('reply_to'),
-      phone: formData.get('phone'),
-      subject: formData.get('subject'),
-      message: formData.get('message'),
-      timestamp: new Date().toLocaleString('en-IN', {
-        timeZone: 'Asia/Kolkata',
-        dateStyle: 'medium',
-        timeStyle: 'short'
-      })
-    };
+    // Format data for WhatsApp message with emojis
+    const name = formData.get('from_name');
+    const email = formData.get('reply_to');
+    const phone = formData.get('phone');
+    const subject = formData.get('subject');
+    const message = formData.get('message');
+    const timestamp = new Date().toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
 
+    // Create formatted WhatsApp message - English first, then Gujarati
+    // Using Unicode escape sequences for emojis to ensure proper encoding
+    const whatsappMessage = `*\u{1F4CB} New Contact Form Submission*
+
+*\u{1F464} Name:* ${name}
+*\u{1F4E7} Email:* ${email}
+*\u{1F4F1} Phone:* ${phone}
+*\u{1F4DD} Subject:* ${subject}
+
+*\u{1F4AC} Message:*
+${message}
+
+*\u{1F550} Submitted on:* ${timestamp}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+*\u{1F4CB} નવો સંપર્ક ફોર્મ સબમિશન*
+
+*\u{1F464} નામ:* ${name}
+*\u{1F4E7} ઈમેલ:* ${email}
+*\u{1F4F1} ફોન:* ${phone}
+*\u{1F4DD} વિષય:* ${subject}
+
+*\u{1F4AC} સંદેશ:*
+${message}
+
+*\u{1F550} સબમિટ કર્યું:* ${timestamp}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+_\u{1F3E5} Eunoia Homoeopathy - Dr. Hetal Pandav_
+_Healing with Harmony | સંવાદિતા સાથે ઉપચાર_`;
     try {
-      await emailjs.send(
-        'service_jnopdbi',      // Service ID
-        'template_lfarlqq',      // Template ID
-        templateParams,
-        'PPSTl7vkuLzVRFaP4'      // Public Key
-      );
+      // Encode the message for URL
+      const encodedMessage = encodeURIComponent(whatsappMessage);
 
+      // Create WhatsApp URL (remove + from phone number for the URL)
+      const whatsappNumber = CONTACT_INFO.phone.replace(/\+/g, '').replace(/\s/g, '');
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+      // Open WhatsApp in a new window
+      window.open(whatsappUrl, '_blank');
+
+      // Show success message
       setSubmitted(true);
       form.reset();
     } catch (err: any) {
-      console.error('EmailJS Error Details:', err);
-      const errorMessage = err?.text || err?.message || 'Unknown error';
-      setError(`Failed to send: ${errorMessage}. Please contact us directly at ${CONTACT_INFO.phone}`);
+      console.error('WhatsApp Error:', err);
+      setError(`Failed to open WhatsApp. Please contact us directly at ${CONTACT_INFO.phone}`);
     } finally {
       setLoading(false);
     }
