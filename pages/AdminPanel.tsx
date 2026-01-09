@@ -55,7 +55,7 @@ const AdminPanel: React.FC = () => {
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
+        const adminPassword = 'HetalHomoeo@098';
 
         if (password === adminPassword) {
             setIsAuthenticated(true);
