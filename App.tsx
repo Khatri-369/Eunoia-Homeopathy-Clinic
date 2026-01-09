@@ -10,6 +10,7 @@ import BookAppointmentPage from './pages/BookAppointmentPage';
 
 import AboutPage from './pages/AboutPage';
 import ServiceDetail from './pages/ServiceDetail';
+import AdminPanel from './pages/AdminPanel';
 
 // ScrollToTop component to handle scroll position on route change
 const ScrollToTop = () => {
@@ -34,6 +35,7 @@ const App: React.FC = () => {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/book-appointment" element={<BookAppointmentPage />} />
           <Route path="/services/:id" element={<ServiceDetail />} />
+          <Route path="/admin" element={<AdminPanel />} />
         </Routes>
 
         <Footer />

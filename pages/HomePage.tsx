@@ -129,7 +129,7 @@ const HomePage: React.FC = () => {
             <div className="w-full lg:w-1/2 relative flex justify-center lg:justify-end mt-8 lg:mt-0">
               <div className="relative z-10 w-full max-w-sm sm:max-w-md">
                 {/* Main Image */}
-                <div className="relative rounded-3xl sm:rounded-[3rem] overflow-hidden border-4 sm:border-[6px] border-white shadow-2xl">
+                <div className="relative rounded-3xl sm:rounded-[3rem] overflow-hidden border-4 sm:border-[6px] border-primary shadow-2xl">
                   <img
                     src="/Client face photo.jpg"
                     alt="Dr. Hetal Pandav"
