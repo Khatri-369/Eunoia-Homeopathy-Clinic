@@ -210,11 +210,7 @@ Please confirm the slot. Thank you.`;
 
               <button
                 onClick={handleConfirm}
-<<<<<<< HEAD
-                disabled={!details.name || !details.phone || isSending}
-=======
-                disabled={!details.name || !details.phone || details.phone.length !== 10}
->>>>>>> 655eea00f192d45959c18e31c07b34fbb1ea6e45
+                disabled={!details.name || !details.phone || details.phone.length !== 10 || isSending}
                 className="w-full bg-primary hover:bg-rose-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSending ? (
