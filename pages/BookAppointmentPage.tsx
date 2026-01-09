@@ -124,10 +124,21 @@ Please confirm the slot. Thank you.`;
                   <input
                     type="tel"
                     className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 focus:bg-white focus:ring-2 focus:ring-primary outline-none transition-all"
-                    placeholder="+91"
+                    placeholder="10-digit mobile number"
                     value={details.phone}
-                    onChange={e => setDetails({ ...details, phone: e.target.value })}
+                    onChange={e => {
+                      const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                      if (value.length <= 10) {
+                        setDetails({ ...details, phone: value });
+                      }
+                    }}
+                    pattern="[0-9]{10}"
+                    maxLength={10}
+                    required
                   />
+                  {details.phone && details.phone.length !== 10 && (
+                    <p className="text-xs text-red-500">Please enter exactly 10 digits</p>
+                  )}
                 </div>
               </div>
 
@@ -161,7 +172,7 @@ Please confirm the slot. Thank you.`;
 
               <button
                 onClick={handleConfirm}
-                disabled={!details.name || !details.phone}
+                disabled={!details.name || !details.phone || details.phone.length !== 10}
                 className="w-full bg-primary hover:bg-rose-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex justify-center items-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Confirm Booking Request

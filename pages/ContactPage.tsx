@@ -28,38 +28,23 @@ const ContactPage: React.FC = () => {
       timeStyle: 'short'
     });
 
-    // Create formatted WhatsApp message - English first, then Gujarati
-    // Using Unicode escape sequences for emojis to ensure proper encoding
-    const whatsappMessage = `*\u{1F4CB} New Contact Form Submission*
+    // Create formatted WhatsApp message - English only, no emojis
+    const whatsappMessage = `*New Contact Form Submission*
 
-*\u{1F464} Name:* ${name}
-*\u{1F4E7} Email:* ${email}
-*\u{1F4F1} Phone:* ${phone}
-*\u{1F4DD} Subject:* ${subject}
+*Name:* ${name}
+*Email:* ${email}
+*Phone:* ${phone}
+*Subject:* ${subject}
 
-*\u{1F4AC} Message:*
+*Message:*
 ${message}
 
-*\u{1F550} Submitted on:* ${timestamp}
+*Submitted on:* ${timestamp}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
-*\u{1F4CB} નવો સંપર્ક ફોર્મ સબમિશન*
-
-*\u{1F464} નામ:* ${name}
-*\u{1F4E7} ઈમેલ:* ${email}
-*\u{1F4F1} ફોન:* ${phone}
-*\u{1F4DD} વિષય:* ${subject}
-
-*\u{1F4AC} સંદેશ:*
-${message}
-
-*\u{1F550} સબમિટ કર્યું:* ${timestamp}
-
-━━━━━━━━━━━━━━━━━━━━━━━━
-
-_\u{1F3E5} Eunoia Homoeopathy - Dr. Hetal Pandav_
-_Healing with Harmony | સંવાદિતા સાથે ઉપચાર_`;
+_Eunoia Homoeopathy - Dr. Hetal Pandav_
+_Healing with Harmony_`;
     try {
       // Encode the message for URL
       const encodedMessage = encodeURIComponent(whatsappMessage);
@@ -264,8 +249,18 @@ _Healing with Harmony | સંવાદિતા સાથે ઉપચાર_`;
                         required
                         onFocus={() => setFocusedField('phone')}
                         onBlur={() => setFocusedField(null)}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                          if (value.length <= 10) {
+                            e.target.value = value;
+                          } else {
+                            e.target.value = value.slice(0, 10);
+                          }
+                        }}
+                        pattern="[0-9]{10}"
+                        maxLength={10}
                         className="w-full px-5 py-4 bg-gray-50 rounded-xl border-2 border-gray-200 focus:bg-white focus:border-rose-500 outline-none transition-all duration-300 hover:border-gray-300"
-                        placeholder="+91 XXXXX XXXXX"
+                        placeholder="10-digit mobile number"
                       />
                     </div>
                     <div className="space-y-2">
