@@ -31,8 +31,7 @@ const HomePage: React.FC = () => {
               </div>
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-serif font-bold text-gray-900 leading-[1.15]">
-                Healing <span className="text-primary italic">Root Causes</span>,<br className="hidden sm:inline" />
-                Naturally.
+                Restoring <span className="text-primary italic">The Health Within</span>
               </h1>
 
               <p className="text-base sm:text-lg text-gray-600 max-w-lg leading-relaxed font-light mx-auto lg:mx-0">
