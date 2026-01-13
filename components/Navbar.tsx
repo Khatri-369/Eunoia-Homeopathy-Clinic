@@ -70,7 +70,7 @@ const Navbar: React.FC = () => {
           {/* Logo Section */}
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0">
             <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 flex items-center justify-center bg-rose-50 rounded-full border-2 border-primary/20 overflow-hidden group-hover:shadow-md transition-all p-1">
-              <img src="/logo.jpg" alt="Lotus Logo" className="object-contain w-full h-full" />
+              <img src="/eunoia_logo.jpg" alt="Eunoia Homoeopathy Logo" className="object-contain w-full h-full" />
             </div>
             <div className="flex flex-col">
               <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-serif font-bold text-gray-800 leading-tight group-hover:text-primary transition-colors whitespace-nowrap">
