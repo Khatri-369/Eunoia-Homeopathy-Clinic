@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, BookOpen, FileText, GraduationCap, Plus, Trash2, Edit, Upload, X } from 'lucide-react';
+import { Lock, BookOpen, FileText, GraduationCap, Plus, Trash2, Edit, Upload, X, Award } from 'lucide-react';
 import { db, storage } from '../lib/supabase';
 
 interface Seminar {
@@ -27,10 +27,18 @@ interface StudyMaterial {
     pdf_url: string;
 }
 
+interface Achievement {
+    id: string;
+    title: string;
+    description: string;
+    image_url: string;
+    date: string;
+}
+
 const AdminPanel: React.FC = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
-    const [activeTab, setActiveTab] = useState<'seminars' | 'papers' | 'materials'>('seminars');
+    const [activeTab, setActiveTab] = useState<'seminars' | 'papers' | 'materials' | 'achievements'>('seminars');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -39,10 +47,15 @@ const AdminPanel: React.FC = () => {
     const [seminars, setSeminars] = useState<Seminar[]>([]);
     const [papers, setPapers] = useState<ResearchPaper[]>([]);
     const [materials, setMaterials] = useState<StudyMaterial[]>([]);
+    const [achievements, setAchievements] = useState<Achievement[]>([]);
 
     // Form states
     const [showAddForm, setShowAddForm] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
+
+    // Edit states
+    const [editingItem, setEditingItem] = useState<any>(null);
+    const [showEditModal, setShowEditModal] = useState(false);
 
     // Check if already authenticated
     useEffect(() => {
@@ -55,7 +68,7 @@ const AdminPanel: React.FC = () => {
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        const adminPassword = 'HetalHomoeo@098';
+        const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
 
         if (password === adminPassword) {
             setIsAuthenticated(true);
@@ -75,14 +88,16 @@ const AdminPanel: React.FC = () => {
 
     const loadData = async () => {
         try {
-            const [seminarsData, papersData, materialsData] = await Promise.all([
+            const [seminarsData, papersData, materialsData, achievementsData] = await Promise.all([
                 db.seminars.getAll(),
                 db.researchPapers.getAll(),
-                db.studyMaterials.getAll()
+                db.studyMaterials.getAll(),
+                db.achievements.getAll()
             ]);
             setSeminars(seminarsData || []);
             setPapers(papersData || []);
             setMaterials(materialsData || []);
+            setAchievements(achievementsData || []);
         } catch (err: any) {
             setError('Failed to load data: ' + err.message);
         }
@@ -199,7 +214,7 @@ const AdminPanel: React.FC = () => {
         }
     };
 
-    const handleDelete = async (type: 'seminars' | 'papers' | 'materials', id: string) => {
+    const handleDelete = async (type: 'seminars' | 'papers' | 'materials' | 'achievements', id: string) => {
         if (!confirm('Are you sure you want to delete this item?')) return;
 
         setLoading(true);
@@ -208,10 +223,179 @@ const AdminPanel: React.FC = () => {
                 await db.seminars.delete(id);
             } else if (type === 'papers') {
                 await db.researchPapers.delete(id);
-            } else {
+            } else if (type === 'materials') {
                 await db.studyMaterials.delete(id);
+            } else {
+                await db.achievements.delete(id);
             }
             setSuccess('Item deleted successfully!');
+            loadData();
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddAchievement = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        const formData = new FormData(e.currentTarget);
+        const imageFile = formData.get('image') as File;
+
+        try {
+            let imageUrl = '';
+            if (imageFile && imageFile.size > 0) {
+                imageUrl = await handleFileUpload(imageFile, 'achievement-images');
+            }
+
+            await db.achievements.create({
+                title: formData.get('title'),
+                description: formData.get('description'),
+                date: formData.get('date'),
+                image_url: imageUrl
+            });
+
+            setSuccess('Achievement added successfully!');
+            setShowAddForm(false);
+            loadData();
+            e.currentTarget.reset();
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Edit handlers
+    const handleEdit = (item: any) => {
+        setEditingItem(item);
+        setShowEditModal(true);
+    };
+
+    const handleUpdateSeminar = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        const formData = new FormData(e.currentTarget);
+        const imageFile = formData.get('image') as File;
+
+        try {
+            let imageUrl = editingItem.image_url;
+            if (imageFile && imageFile.size > 0) {
+                imageUrl = await handleFileUpload(imageFile, 'seminar-images');
+            }
+
+            await db.seminars.update(editingItem.id, {
+                title: formData.get('title'),
+                date: formData.get('date'),
+                description: formData.get('description'),
+                image_url: imageUrl
+            });
+
+            setSuccess('Seminar updated successfully!');
+            setShowEditModal(false);
+            setEditingItem(null);
+            loadData();
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpdatePaper = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        const formData = new FormData(e.currentTarget);
+        const pdfFile = formData.get('pdf') as File;
+
+        try {
+            let pdfUrl = editingItem.pdf_url;
+            if (pdfFile && pdfFile.size > 0) {
+                pdfUrl = await handleFileUpload(pdfFile, 'research-papers');
+            }
+
+            await db.researchPapers.update(editingItem.id, {
+                title: formData.get('title'),
+                author: formData.get('author'),
+                description: formData.get('description'),
+                pdf_url: pdfUrl,
+                published_date: formData.get('published_date')
+            });
+
+            setSuccess('Research paper updated successfully!');
+            setShowEditModal(false);
+            setEditingItem(null);
+            loadData();
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpdateMaterial = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        const formData = new FormData(e.currentTarget);
+        const pdfFile = formData.get('pdf') as File;
+
+        try {
+            let pdfUrl = editingItem.pdf_url;
+            if (pdfFile && pdfFile.size > 0) {
+                pdfUrl = await handleFileUpload(pdfFile, 'study-materials');
+            }
+
+            await db.studyMaterials.update(editingItem.id, {
+                title: formData.get('title'),
+                category: formData.get('category'),
+                description: formData.get('description'),
+                pdf_url: pdfUrl
+            });
+
+            setSuccess('Study material updated successfully!');
+            setShowEditModal(false);
+            setEditingItem(null);
+            loadData();
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpdateAchievement = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        const formData = new FormData(e.currentTarget);
+        const imageFile = formData.get('image') as File;
+
+        try {
+            let imageUrl = editingItem.image_url;
+            if (imageFile && imageFile.size > 0) {
+                imageUrl = await handleFileUpload(imageFile, 'achievement-images');
+            }
+
+            await db.achievements.update(editingItem.id, {
+                title: formData.get('title'),
+                description: formData.get('description'),
+                date: formData.get('date'),
+                image_url: imageUrl
+            });
+
+            setSuccess('Achievement updated successfully!');
+            setShowEditModal(false);
+            setEditingItem(null);
             loadData();
         } catch (err: any) {
             setError(err.message);
@@ -322,6 +506,14 @@ const AdminPanel: React.FC = () => {
                         <GraduationCap size={20} />
                         Study Materials ({materials.length})
                     </button>
+                    <button
+                        onClick={() => { setActiveTab('achievements'); setShowAddForm(false); }}
+                        className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${activeTab === 'achievements' ? 'bg-rose-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                    >
+                        <Award size={20} />
+                        Achievements ({achievements.length})
+                    </button>
                 </div>
 
                 {/* Add Button */}
@@ -330,14 +522,14 @@ const AdminPanel: React.FC = () => {
                     className="mb-6 bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors"
                 >
                     <Plus size={20} />
-                    Add New {activeTab === 'seminars' ? 'Seminar' : activeTab === 'papers' ? 'Research Paper' : 'Study Material'}
+                    Add New {activeTab === 'seminars' ? 'Seminar' : activeTab === 'papers' ? 'Research Paper' : activeTab === 'materials' ? 'Study Material' : 'Achievement'}
                 </button>
 
                 {/* Add Forms */}
                 {showAddForm && (
                     <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                         <h3 className="text-xl font-bold mb-4">
-                            Add New {activeTab === 'seminars' ? 'Seminar' : activeTab === 'papers' ? 'Research Paper' : 'Study Material'}
+                            Add New {activeTab === 'seminars' ? 'Seminar' : activeTab === 'papers' ? 'Research Paper' : activeTab === 'materials' ? 'Study Material' : 'Achievement'}
                         </h3>
 
                         {activeTab === 'seminars' && (
@@ -376,6 +568,18 @@ const AdminPanel: React.FC = () => {
                                 </button>
                             </form>
                         )}
+
+                        {activeTab === 'achievements' && (
+                            <form onSubmit={handleAddAchievement} className="space-y-4">
+                                <input name="title" placeholder="Achievement Title" className="w-full px-4 py-3 border rounded-lg" required />
+                                <textarea name="description" placeholder="Description" className="w-full px-4 py-3 border rounded-lg" rows={3} required />
+                                <input name="date" type="date" className="w-full px-4 py-3 border rounded-lg" required />
+                                <input name="image" type="file" accept="image/*" className="w-full px-4 py-3 border rounded-lg" />
+                                <button type="submit" disabled={loading} className="bg-rose-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-rose-700 disabled:opacity-50">
+                                    {loading ? 'Adding...' : 'Add Achievement'}
+                                </button>
+                            </form>
+                        )}
                     </div>
                 )}
 
@@ -389,12 +593,20 @@ const AdminPanel: React.FC = () => {
                                 <p className="text-gray-700 mt-2">{seminar.description}</p>
                                 {seminar.image_url && <img src={seminar.image_url} alt={seminar.title} className="mt-4 w-48 h-32 object-cover rounded-lg" />}
                             </div>
-                            <button
-                                onClick={() => handleDelete('seminars', seminar.id)}
-                                className="ml-4 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            >
-                                <Trash2 size={20} />
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => handleEdit(seminar)}
+                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                >
+                                    <Edit size={20} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete('seminars', seminar.id)}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                    <Trash2 size={20} />
+                                </button>
+                            </div>
                         </div>
                     ))}
 
@@ -408,12 +620,20 @@ const AdminPanel: React.FC = () => {
                                     View PDF →
                                 </a>
                             </div>
-                            <button
-                                onClick={() => handleDelete('papers', paper.id)}
-                                className="ml-4 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            >
-                                <Trash2 size={20} />
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => handleEdit(paper)}
+                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                >
+                                    <Edit size={20} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete('papers', paper.id)}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                    <Trash2 size={20} />
+                                </button>
+                            </div>
                         </div>
                     ))}
 
@@ -427,15 +647,339 @@ const AdminPanel: React.FC = () => {
                                     Download PDF →
                                 </a>
                             </div>
-                            <button
-                                onClick={() => handleDelete('materials', material.id)}
-                                className="ml-4 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            >
-                                <Trash2 size={20} />
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => handleEdit(material)}
+                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                >
+                                    <Edit size={20} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete('materials', material.id)}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                    <Trash2 size={20} />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+
+                    {activeTab === 'achievements' && achievements.map((achievement) => (
+                        <div key={achievement.id} className="bg-white rounded-xl shadow-sm p-6 flex justify-between items-start">
+                            <div className="flex-1">
+                                <h3 className="text-xl font-bold text-gray-900">{achievement.title}</h3>
+                                <p className="text-gray-600 mt-1">{achievement.date}</p>
+                                <p className="text-gray-700 mt-2">{achievement.description}</p>
+                                {achievement.image_url && <img src={achievement.image_url} alt={achievement.title} className="mt-4 w-48 h-32 object-cover rounded-lg" />}
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => handleEdit(achievement)}
+                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                >
+                                    <Edit size={20} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete('achievements', achievement.id)}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                    <Trash2 size={20} />
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
+
+                {/* Edit Modal */}
+                {showEditModal && editingItem && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
+                                <h3 className="text-2xl font-bold text-gray-900">
+                                    Edit {activeTab === 'seminars' ? 'Seminar' : activeTab === 'papers' ? 'Research Paper' : activeTab === 'materials' ? 'Study Material' : 'Achievement'}
+                                </h3>
+                                <button
+                                    onClick={() => {
+                                        setShowEditModal(false);
+                                        setEditingItem(null);
+                                    }}
+                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <div className="p-6">
+                                {/* Seminar Edit Form */}
+                                {activeTab === 'seminars' && (
+                                    <form onSubmit={handleUpdateSeminar} className="space-y-4">
+                                        <input
+                                            name="title"
+                                            defaultValue={editingItem.title}
+                                            placeholder="Seminar Title"
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                            required
+                                        />
+                                        <input
+                                            name="date"
+                                            type="date"
+                                            defaultValue={editingItem.date}
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                            required
+                                        />
+                                        <textarea
+                                            name="description"
+                                            defaultValue={editingItem.description}
+                                            placeholder="Description"
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                            rows={3}
+                                        />
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Update Image (optional)
+                                            </label>
+                                            <input
+                                                name="image"
+                                                type="file"
+                                                accept="image/*"
+                                                className="w-full px-4 py-3 border rounded-lg"
+                                            />
+                                            {editingItem.image_url && (
+                                                <img
+                                                    src={editingItem.image_url}
+                                                    alt="Current"
+                                                    className="mt-2 w-32 h-20 object-cover rounded-lg"
+                                                />
+                                            )}
+                                        </div>
+                                        <div className="flex gap-3 pt-4">
+                                            <button
+                                                type="submit"
+                                                disabled={loading}
+                                                className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+                                            >
+                                                {loading ? 'Updating...' : 'Update Seminar'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setShowEditModal(false);
+                                                    setEditingItem(null);
+                                                }}
+                                                className="px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+
+                                {/* Research Paper Edit Form */}
+                                {activeTab === 'papers' && (
+                                    <form onSubmit={handleUpdatePaper} className="space-y-4">
+                                        <input
+                                            name="title"
+                                            defaultValue={editingItem.title}
+                                            placeholder="Paper Title"
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                            required
+                                        />
+                                        <input
+                                            name="author"
+                                            defaultValue={editingItem.author}
+                                            placeholder="Author Name"
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                        />
+                                        <textarea
+                                            name="description"
+                                            defaultValue={editingItem.description}
+                                            placeholder="Description"
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                            rows={3}
+                                        />
+                                        <input
+                                            name="published_date"
+                                            type="date"
+                                            defaultValue={editingItem.published_date}
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                        />
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Update PDF (optional)
+                                            </label>
+                                            <input
+                                                name="pdf"
+                                                type="file"
+                                                accept=".pdf"
+                                                className="w-full px-4 py-3 border rounded-lg"
+                                            />
+                                            {editingItem.pdf_url && (
+                                                <a
+                                                    href={editingItem.pdf_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-block mt-2 text-blue-600 hover:underline text-sm"
+                                                >
+                                                    View current PDF →
+                                                </a>
+                                            )}
+                                        </div>
+                                        <div className="flex gap-3 pt-4">
+                                            <button
+                                                type="submit"
+                                                disabled={loading}
+                                                className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+                                            >
+                                                {loading ? 'Updating...' : 'Update Paper'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setShowEditModal(false);
+                                                    setEditingItem(null);
+                                                }}
+                                                className="px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+
+                                {/* Study Material Edit Form */}
+                                {activeTab === 'materials' && (
+                                    <form onSubmit={handleUpdateMaterial} className="space-y-4">
+                                        <input
+                                            name="title"
+                                            defaultValue={editingItem.title}
+                                            placeholder="Material Title"
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                            required
+                                        />
+                                        <input
+                                            name="category"
+                                            defaultValue={editingItem.category}
+                                            placeholder="Category"
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                        />
+                                        <textarea
+                                            name="description"
+                                            defaultValue={editingItem.description}
+                                            placeholder="Description"
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                            rows={3}
+                                        />
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Update PDF (optional)
+                                            </label>
+                                            <input
+                                                name="pdf"
+                                                type="file"
+                                                accept=".pdf"
+                                                className="w-full px-4 py-3 border rounded-lg"
+                                            />
+                                            {editingItem.pdf_url && (
+                                                <a
+                                                    href={editingItem.pdf_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-block mt-2 text-blue-600 hover:underline text-sm"
+                                                >
+                                                    View current PDF →
+                                                </a>
+                                            )}
+                                        </div>
+                                        <div className="flex gap-3 pt-4">
+                                            <button
+                                                type="submit"
+                                                disabled={loading}
+                                                className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+                                            >
+                                                {loading ? 'Updating...' : 'Update Material'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setShowEditModal(false);
+                                                    setEditingItem(null);
+                                                }}
+                                                className="px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+
+                                {/* Achievement Edit Form */}
+                                {activeTab === 'achievements' && (
+                                    <form onSubmit={handleUpdateAchievement} className="space-y-4">
+                                        <input
+                                            name="title"
+                                            defaultValue={editingItem.title}
+                                            placeholder="Achievement Title"
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                            required
+                                        />
+                                        <textarea
+                                            name="description"
+                                            defaultValue={editingItem.description}
+                                            placeholder="Description"
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                            rows={3}
+                                            required
+                                        />
+                                        <input
+                                            name="date"
+                                            type="date"
+                                            defaultValue={editingItem.date}
+                                            className="w-full px-4 py-3 border rounded-lg"
+                                            required
+                                        />
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Update Image (optional)
+                                            </label>
+                                            <input
+                                                name="image"
+                                                type="file"
+                                                accept="image/*"
+                                                className="w-full px-4 py-3 border rounded-lg"
+                                            />
+                                            {editingItem.image_url && (
+                                                <img
+                                                    src={editingItem.image_url}
+                                                    alt="Current"
+                                                    className="mt-2 w-32 h-20 object-cover rounded-lg"
+                                                />
+                                            )}
+                                        </div>
+                                        <div className="flex gap-3 pt-4">
+                                            <button
+                                                type="submit"
+                                                disabled={loading}
+                                                className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+                                            >
+                                                {loading ? 'Updating...' : 'Update Achievement'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setShowEditModal(false);
+                                                    setEditingItem(null);
+                                                }}
+                                                className="px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

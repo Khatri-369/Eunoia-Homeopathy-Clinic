@@ -120,6 +120,44 @@ export const db = {
                 .eq('id', id);
             if (error) throw error;
         }
+    },
+
+    // Achievements
+    achievements: {
+        getAll: async () => {
+            const { data, error } = await supabase
+                .from('achievements')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            return data;
+        },
+        create: async (achievement: any) => {
+            const { data, error } = await supabase
+                .from('achievements')
+                .insert(achievement)
+                .select()
+                .single();
+            if (error) throw error;
+            return data;
+        },
+        update: async (id: string, updates: any) => {
+            const { data, error } = await supabase
+                .from('achievements')
+                .update(updates)
+                .eq('id', id)
+                .select()
+                .single();
+            if (error) throw error;
+            return data;
+        },
+        delete: async (id: string) => {
+            const { error } = await supabase
+                .from('achievements')
+                .delete()
+                .eq('id', id);
+            if (error) throw error;
+        }
     }
 };
 
