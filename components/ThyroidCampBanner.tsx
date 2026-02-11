@@ -109,7 +109,7 @@ const ThyroidCampBanner: React.FC = () => {
                                 <Calendar className="text-primary mt-1" size={20} />
                                 <div>
                                     <h4 className="font-bold text-gray-900">12th Feb to 12th Mar 2026</h4>
-                                    <p className="text-sm text-gray-600">Every Thursday to Sunday</p>
+                                    <p className="text-sm text-gray-600">Every Thursday to Saturday</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
