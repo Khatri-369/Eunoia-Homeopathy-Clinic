@@ -9,6 +9,38 @@ import '../styles/GradientButton.css';
 
 const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const allTreatments = React.useMemo(() => {
+    const list = new Set<string>();
+    SERVICES.forEach(s => {
+      list.add(s.title);
+      s.details.forEach(d => list.add(d));
+    });
+    // Add common search terms not deeply categorized
+    list.add('Headache');
+    list.add('Migraine');
+    list.add('Infertility');
+    return Array.from(list);
+  }, []);
+
+  const searchResults = React.useMemo(() => {
+    if (!searchTerm) return [];
+    return allTreatments
+      .filter(t => t.toLowerCase().includes(searchTerm.toLowerCase()))
+      .slice(0, 6);
+  }, [searchTerm, allTreatments]);
 
   const filteredServices = SERVICES.filter(service =>
     service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -37,6 +69,51 @@ const HomePage: React.FC = () => {
               <p className="text-base sm:text-lg text-gray-600 max-w-lg leading-relaxed font-light mx-auto lg:mx-0">
                 Experience the precision of constitutional homeopathy with Dr. Hetal Pandav. Safe, non-toxic, and permanent cures for chronic diseases.
               </p>
+
+              {/* Hero Search Bar */}
+              <div className="relative w-full max-w-md mx-auto lg:mx-0" ref={dropdownRef}>
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input
+                  type="text"
+                  placeholder="Search treatments (e.g., Headache, Hair fall)"
+                  value={searchTerm}
+                  onFocus={() => setShowDropdown(true)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setShowDropdown(true);
+                  }}
+                  className="w-full pl-11 pr-4 py-3.5 text-sm sm:text-base rounded-full border border-gray-200 shadow-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                />
+
+                {/* Autocomplete Dropdown */}
+                {showDropdown && searchTerm.length > 0 && (
+                  <ul className="absolute z-[100] w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl max-h-64 overflow-y-auto text-left py-2 overflow-x-hidden animate-fade-in-up">
+                    {searchResults.length > 0 ? (
+                      searchResults.map((treatment, idx) => (
+                        <li key={idx}>
+                          <button
+                            onClick={() => {
+                              setSearchTerm(treatment);
+                              setShowDropdown(false);
+                              setTimeout(() => {
+                                document.getElementById('services')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }, 100);
+                            }}
+                            className="w-full text-left px-5 py-3 text-sm text-gray-700 hover:bg-rose-50 hover:text-primary transition-colors cursor-pointer border-b border-gray-50 last:border-0"
+                          >
+                            <span className="flex items-center gap-2">
+                              <Search size={14} className="text-rose-300" />
+                              {treatment}
+                            </span>
+                          </button>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="px-5 py-3 text-sm text-gray-500 italic">No exact matches found. Scroll down to browse more.</li>
+                    )}
+                  </ul>
+                )}
+              </div>
 
               {/* Mobile-Optimized Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 w-full sm:w-auto">
@@ -236,7 +313,7 @@ const HomePage: React.FC = () => {
             {/* Card 1: Root Cause Treatment */}
             <div className="group relative">
               <div className="absolute inset-0 bg-gradient-to-br from-rose-200/50 to-rose-100/30 rounded-[2.5rem] blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-              <div className="relative bg-white p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-[2.5rem] shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-3 border-2 border-white hover:border-rose-100 overflow-hidden">
+              <div className="relative bg-white p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-[2.5rem] shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-3 border-2 border-black hover:border-rose-300 overflow-hidden">
                 {/* Animated Corner Accent */}
                 <div className="absolute -top-12 -right-12 w-40 h-40 bg-gradient-to-br from-rose-100 to-rose-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
 
@@ -264,7 +341,7 @@ const HomePage: React.FC = () => {
             {/* Card 2: Zero Side Effects */}
             <div className="group relative">
               <div className="absolute inset-0 bg-gradient-to-br from-green-200/50 to-green-100/30 rounded-[2.5rem] blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-              <div className="relative bg-white p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-[2.5rem] shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-3 border-2 border-white hover:border-green-100 overflow-hidden">
+              <div className="relative bg-white p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-[2.5rem] shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-3 border-2 border-black hover:border-green-300 overflow-hidden">
                 {/* Animated Corner Accent */}
                 <div className="absolute -top-12 -right-12 w-40 h-40 bg-gradient-to-br from-green-100 to-green-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
 
@@ -292,7 +369,7 @@ const HomePage: React.FC = () => {
             {/* Card 3: Personalized Care */}
             <div className="group relative">
               <div className="absolute inset-0 bg-gradient-to-br from-rose-200/50 to-rose-100/30 rounded-[2.5rem] blur-xl group-hover:blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
-              <div className="relative bg-white p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-[2.5rem] shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-3 border-2 border-white hover:border-rose-100 overflow-hidden">
+              <div className="relative bg-white p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-[2.5rem] shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 sm:hover:-translate-y-3 border-2 border-black hover:border-rose-300 overflow-hidden">
                 {/* Animated Corner Accent */}
                 <div className="absolute -top-12 -right-12 w-40 h-40 bg-gradient-to-br from-rose-100 to-rose-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
 

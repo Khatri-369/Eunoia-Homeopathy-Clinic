@@ -11,7 +11,7 @@ const TreatmentCard: React.FC<TreatmentCardProps> = ({ service }) => {
     return (
         <Link
             to={`/services/${service.id}`}
-            className="group relative bg-white rounded-[20px] shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer block h-[480px] flex flex-col"
+            className="group relative bg-white border-2 border-black rounded-[20px] shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer block h-[480px] flex flex-col"
         >
             {/* Image Section - 60-65% of card */}
             <div className="relative h-[65%] overflow-hidden">

@@ -12,7 +12,6 @@ import AboutPage from './pages/AboutPage';
 import ServiceDetail from './pages/ServiceDetail';
 import AdminPanel from './pages/AdminPanel';
 import AchievementsPage from './pages/AchievementsPage';
-import ThyroidCampBanner from './components/ThyroidCampBanner';
 
 // ScrollToTop component to handle scroll position on route change
 const ScrollToTop = () => {
@@ -29,7 +28,6 @@ const App: React.FC = () => {
       <ScrollToTop />
       <div className="flex flex-col min-h-screen font-sans text-gray-800">
         <Navbar />
-        <ThyroidCampBanner />
 
         <Routes>
           <Route path="/" element={<HomePage />} />

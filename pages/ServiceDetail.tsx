@@ -74,7 +74,7 @@ const ServiceDetail: React.FC = () => {
                                 {/* Two Column Grid for Symptoms & Causes */}
                                 <div className="grid md:grid-cols-2 gap-8">
                                     {/* Symptoms */}
-                                    <div className="bg-rose-50/50 p-8 rounded-2xl border border-rose-100">
+                                    <div className="bg-rose-50/50 p-8 rounded-2xl border-2 border-black">
                                         <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                                             <AlertCircle className="text-rose-500 mr-2" size={20} /> Common Symptoms
                                         </h3>
@@ -89,7 +89,7 @@ const ServiceDetail: React.FC = () => {
                                     </div>
 
                                     {/* Causes */}
-                                    <div className="bg-gray-50 p-8 rounded-2xl border border-gray-100">
+                                    <div className="bg-gray-50 p-8 rounded-2xl border-2 border-black">
                                         <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                                             <AlertCircle className="text-gray-500 mr-2" size={20} /> Causes & Triggers
                                         </h3>
@@ -106,7 +106,7 @@ const ServiceDetail: React.FC = () => {
 
                                 {/* Homeopathic Approach */}
                                 <section>
-                                    <div className="bg-green-50/50 p-8 rounded-2xl border border-green-100">
+                                    <div className="bg-green-50/50 p-8 rounded-2xl border-2 border-black">
                                         <h2 className="text-2xl font-serif font-bold text-gray-900 mb-4 flex items-center">
                                             <Heart className="text-green-600 mr-3" /> Why Homeopathy?
                                         </h2>
@@ -123,7 +123,7 @@ const ServiceDetail: React.FC = () => {
                                     </h2>
                                     <div className="grid sm:grid-cols-2 gap-4">
                                         {fullContent.benefits.map((benefit, idx) => (
-                                            <div key={idx} className="flex items-center p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                                            <div key={idx} className="flex items-center p-4 bg-white rounded-xl shadow-sm border-2 border-black">
                                                 <CheckCircle2 className="text-green-500 mr-3 flex-shrink-0" size={20} />
                                                 <span className="font-semibold text-gray-700">{benefit}</span>
                                             </div>
@@ -150,7 +150,7 @@ const ServiceDetail: React.FC = () => {
                             {/* Sidebar CTA - Right (Sticky on Large Screens) */}
                             <div className="lg:w-80 flex-shrink-0">
                                 <div className="sticky top-24 space-y-6">
-                                    <div className="bg-white p-6 rounded-2xl shadow-lg border border-rose-100">
+                                    <div className="bg-white p-6 rounded-2xl shadow-lg border-2 border-black">
                                         <h3 className="text-xl font-bold text-gray-900 mb-2">Book Your Visit</h3>
                                         <p className="text-gray-500 text-sm mb-6">Dr. Hetal Pandav is ready to help you heal naturally.</p>
 
@@ -162,7 +162,7 @@ const ServiceDetail: React.FC = () => {
                                         </Link>
                                     </div>
 
-                                    <div className="bg-neutral p-6 rounded-2xl">
+                                    <div className="bg-neutral p-6 rounded-2xl border-2 border-black">
                                         <h4 className="font-bold text-gray-900 mb-4 flex items-center"><Calendar size={18} className="mr-2" /> Clinic Timings</h4>
                                         <p className="text-sm text-gray-600 mb-1">Monday - Saturday</p>
                                         <p className="font-semibold text-gray-800">5:30 PM - 8:30 PM</p>

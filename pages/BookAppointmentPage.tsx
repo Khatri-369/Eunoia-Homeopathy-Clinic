@@ -97,7 +97,7 @@ Please confirm the slot. Thank you.`;
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <button
                 onClick={() => { setBookingType('online'); setStep(2); }}
-                className="relative bg-white p-8 rounded-2xl shadow-sm border-2 border-transparent hover:border-secondary hover:shadow-xl transition-all group text-left"
+                className="relative bg-white p-8 rounded-2xl shadow-sm border-2 border-black hover:border-secondary hover:shadow-xl transition-all group text-left"
               >
                 <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <Video size={32} className="text-secondary" />
@@ -111,7 +111,7 @@ Please confirm the slot. Thank you.`;
 
               <button
                 onClick={() => { setBookingType('offline'); setStep(2); }}
-                className="relative bg-white p-8 rounded-2xl shadow-sm border-2 border-transparent hover:border-primary hover:shadow-xl transition-all group text-left"
+                className="relative bg-white p-8 rounded-2xl shadow-sm border-2 border-black hover:border-primary hover:shadow-xl transition-all group text-left"
               >
                 <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <MapPin size={32} className="text-primary" />
