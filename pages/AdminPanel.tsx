@@ -120,7 +120,8 @@ const AdminPanel: React.FC = () => {
         setLoading(true);
         setError('');
 
-        const formData = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
         const imageFile = formData.get('image') as File;
 
         try {
@@ -139,7 +140,7 @@ const AdminPanel: React.FC = () => {
             setSuccess('Seminar added successfully!');
             setShowAddForm(false);
             loadData();
-            e.currentTarget.reset();
+            form.reset();
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -152,7 +153,8 @@ const AdminPanel: React.FC = () => {
         setLoading(true);
         setError('');
 
-        const formData = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
         const pdfFile = formData.get('pdf') as File;
 
         try {
@@ -173,7 +175,7 @@ const AdminPanel: React.FC = () => {
             setSuccess('Research paper added successfully!');
             setShowAddForm(false);
             loadData();
-            e.currentTarget.reset();
+            form.reset();
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -186,7 +188,8 @@ const AdminPanel: React.FC = () => {
         setLoading(true);
         setError('');
 
-        const formData = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
         const pdfFile = formData.get('pdf') as File;
 
         try {
@@ -206,7 +209,7 @@ const AdminPanel: React.FC = () => {
             setSuccess('Study material added successfully!');
             setShowAddForm(false);
             loadData();
-            e.currentTarget.reset();
+            form.reset();
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -242,7 +245,8 @@ const AdminPanel: React.FC = () => {
         setLoading(true);
         setError('');
 
-        const formData = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
         const imageFile = formData.get('image') as File;
 
         try {
@@ -261,7 +265,7 @@ const AdminPanel: React.FC = () => {
             setSuccess('Achievement added successfully!');
             setShowAddForm(false);
             loadData();
-            e.currentTarget.reset();
+            form.reset();
         } catch (err: any) {
             setError(err.message);
         } finally {
