@@ -467,7 +467,7 @@ export const CASE_STUDIES: CaseStudy[] = [
 export const TESTIMONIALS: Testimonial[] = [
   {
     id: 't1',
-    name: "Khatri Manisha",
+    name: "Harsh Shah",
     location: "Vadodara",
     text: "I struggled with chronic sinusitis for over 15 years and tried almost everything. Antibiotics only gave temporary relief, but it always came back. Dr. Hetal’s treatment was different—she understood the root cause. Within 8 months, I felt completely cured. Truly grateful for this lasting relief.",
     condition: "Sinusitis"
